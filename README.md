@@ -3,7 +3,7 @@
 **C++ implementation of the Creutz demon algorithm applied to the 2D Ising spin lattice.**  
 The project studies the thermodynamic behavior of a 2D Ising system using a **microcanonical Monte Carlo** simulation and analyzes energy histograms, magnetization, and temperature dependence.
 
-📄 **Note:** The full report (*sprawozdanie*) is written in **Polish** and available in the file [`ZMO_StanczykK_z1.pdf`](./ZMO_StanczykK_z1.pdf).
+📄 **Note:** The full report (*sprawozdanie*) is written in **Polish** and available in the file [`Sprawozdanie.pdf`](./Sprawozdanie.pdf).
 
 ---
 
