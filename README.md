@@ -71,20 +71,20 @@ The complete analysis, theoretical background, methodology, and discussion of re
 
 ## 📂 Repository Structure
 CreutzIsing2D/
-├── main.cpp                      # Source code
-├── Sprawozdanie.pdf              # Full Polish report 
-├── mT.txt                        # Summary results file
-├── histogram/                    # Energy distribution data
-├── magnetization/                # Magnetization over MC sweeps
-├── report_latex/                 # LaTeX source files
-│   ├── main.tex
-│   ├── bibliography.bib
-│   ├── histogramLin.png
-│   ├── HistogramLog.png
-│   ├── magnetization1000.png
-│   ├── magnetyzacjaALL.png
-│   └── mT.png             
-└── README.md                     
+├── main.cpp                      # Source code  
+├── Sprawozdanie.pdf              # Full Polish report   
+├── mT.txt                        # Summary results file  
+├── histogram/                    # Energy distribution data  
+├── magnetization/                # Magnetization over MC sweeps  
+├── report_latex/                 # LaTeX source files  
+│   ├── main.tex  
+│   ├── bibliography.bib  
+│   ├── histogramLin.png  
+│   ├── HistogramLog.png  
+│   ├── magnetization1000.png  
+│   ├── magnetyzacjaALL.png  
+│   └── mT.png               
+└── README.md                       
 
 ---
 
