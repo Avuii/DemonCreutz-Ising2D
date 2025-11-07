@@ -1,0 +1,269 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{anyfontsize}
+\usepackage{geometry}
+\usepackage{placeins}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{titlesec}
+\usepackage{lmodern}
+\usepackage{enumitem}
+\setlist[description]{style=nextline, font=\normalfont, labelwidth=6.2cm, leftmargin=6.4cm, itemsep=2pt}
+\geometry{top=1.5cm, bottom=2.2cm, left=2.2cm, right=2.2cm}
+\setstretch{1.3}
+\usepackage{enumitem}
+% Ustawienia globalne dla list
+\setlist[itemize]{noitemsep, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=1.2cm}
+\setlist[enumerate]{noitemsep, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=1.2cm}
+\titlespacing*{\section}{0pt}{10pt}{5pt}
+\titlespacing*{\subsection}{0pt}{8pt}{3pt}
+
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+
+    {\LARGE \textbf{Uniwersytet Łódzki}}\\[0.3cm]
+    {\Large \textbf{Wydział Fizyki i Informatyki Stosowanej}}\\[2cm]
+
+    {\normalsize \textbf{SPRAWOZDANIE Z LABORATORIUM}}\\[0.1cm]
+    {\Large \textbf{Zaawansowane metody obliczeniowe}}\\[4cm]
+
+{\fontsize {30pt}{20pt} \textbf{Demon Creutza}} \\[0.5cm] 
+{\fontsize{25pt}{20pt}\textbf {w dwuwymiarowym modelu Isinga}}\\[2cm]
+
+
+    \vfill
+
+    \begin{flushright}
+        \begin{tabular}{rl}
+            \textbf{Autor:} & Katarzyna Stańczyk \\[0cm]
+            \textbf{Kierunek studiów:} & Informatyka \\[0cm]
+            \textbf{Data wykonania:} & 6 listopada 2025 \\[0cm]
+            \textbf{Rok akademicki:} & 2025/2026 \\
+        \end{tabular}
+    \end{flushright}
+
+    \vspace{2cm}
+
+    {\large Łódź, 2025}
+
+\end{titlepage}
+\vspace*{0.5cm}
+\section{Wstęp}
+Celem ćwiczenia było zbadanie działania algorytmu Creutza w dwuwymiarowym modelu Isinga z wykorzystaniem metody Monte Carlo~\cite{Gwizdalla2010,Brandt1998}, a także otrzymanie wykresu zależności średniej magnetyzacji~$\langle m \rangle$ od temperatury~$T$ i porównanie go z wartościami teoretycznymi.
+
+W ramach symulacji analizowano przebieg zmian Energii demona $E_D$, średnią magnetyzację~$\langle m \rangle$ na dany krok Monte Carlo oraz zależność średniej magnetyzacji~$\langle m \rangle$ od obliczonej temperatury~$T$, co pozwoliło ocenić poprawność działania algorytmu i jego zdolność do odtworzenia przejścia fazowego w modelu Isinga.\\
+
+
+\subsection{Model Isinga}
+Model Isinga stanowi jedno z podstawowych narzędzi w fizyce statystycznej i służy do opisu zjawisk magnetycznych, takich jak przejście między stanem uporządkowanym (ferromagnetycznym) a nieuporządkowanym (paramagnetycznym).
+
+W rozpatrywanym przypadku spiny $s_i = \pm 1$ są rozmieszczone w punktach dwuwymiarowej siatki, a energia układu wyraża się zależnością:
+\begin{equation}
+E = -J \sum_{\langle i,j \rangle} s_i s_j,
+\label{eq:ising_energy}
+\end{equation}
+gdzie 
+\begin{itemize}
+\item suma przebiega po parach sąsiednich spinów $\langle i,j\rangle$, 
+\item  $J>0$ dla układu ferromagnetycznego.
+\end{itemize}
+Podstawową wielkością charakteryzującą uporządkowanie układu jest magnetyzacja, definiowana jako średnia wartość wszystkich spinów:
+\begin{equation}
+m = \frac{1}{N}\sum_{i=1}^{N} s_i,
+\label{eq:magnetization}
+\end{equation}
+gdzie \(N = L_x \times L_y\) oznacza całkowitą liczbę spinów w siatce.\\ 
+W niskiej temperaturze siatka jest uporządkowana (duża magnetyzacja $\langle m\rangle$), natomiast powyżej temperatury krytycznej uporządkowanie zanika.\\ 
+Dla modelu dwuwymiarowego wartość tej temperatury wynosi \cite{Gwizdalla2010}:
+\begin{equation}
+\label{eq:Tc_teor}
+T_c^{\mathrm{teor}}\approx 2.269\frac{J}{k_B}.
+\end{equation}
+\newpage
+\subsection{Metoda Monte Carlo i demon Creutza}
+Metoda Monte Carlo pozwala symulować procesy statystyczne, dla których uzyskanie rozwiązania analitycznego jest trudne lub niemożliwe.  
+Demon Creutza to jej wariant, wprowadza się w nim dodatkowy element — tzw. demona, który pełni rolę pomocniczego „magazynu” energii $E_d$.  
+Demon może przekazywać lub odbierać energię od układu, dzięki czemu całkowita energia (układ + demon) pozostaje stała. Zasada działania tego mechanizmu wymiany energii została szczegółowo opisana w kolejnym podrozdziale.
+
+Prawdopodobieństwo wystąpienia stanu o danej energii $E_d$ opisuje rozkład Gibbsa\cite{Gwizdalla2010}:
+{ 
+  \setlength{\abovedisplayskip}{6pt}   
+  \setlength{\belowdisplayskip}{6pt}   
+  \begin{equation}
+    P(E_d)\propto e^{-E_d/(k_B T)},
+    \label{eq:demon_distribution}
+  \end{equation}
+}
+1
+\noindent gdzie \(k_B\) - stała Boltzmanna, \(\; T\) — temperatura układu.\\
+Zatem wykres $\ln P(E_d)$ względem $E_d$ powinien być liniowy. Po przekształceniu równania otrzymujemy zależność liniową:
+\begin{equation}
+\ln P(E_d)=a E_d+b, \qquad a=-\frac{1}{k_B T}.
+\label{eq:regression}
+\end{equation}
+Dlatego temperaturę można wyznaczyć na podstawie współczynnika kierunkowego \(a\):
+\begin{equation}
+\label{eq:temperature}
+T=-\frac{1}{a k_B}.
+\end{equation}
+
+\subsection{Algorytm symulacji}
+W każdej iteracji losowo wybierany jest spin $s_i$; następnie liczymy zmianę energii $\Delta E$ po odwróceniu spinu $s_i$:
+\begin{equation}
+\Delta E = 2 J s_i \sum_{\text{nn}} s_j,
+\label{eq:deltaE}
+\end{equation}
+gdzie suma obejmuje sąsiednie spiny $s_j$, czyli te, które znajdują się bezpośrednio obok rozważanego spinu w siatce. Zasady akceptacji są następujące:
+\begin{itemize}
+    \item jeśli $\Delta E \le 0$, zmiana jest zawsze akceptowana (układ traci energię, którą przejmuje demon),
+    \item jeśli $\Delta E > 0$ i demon ma energię $E_d \ge \Delta E$, zmiana jest akceptowana, a demon traci energię $\Delta E$,
+    \item w przeciwnym przypadku zmiana jest odrzucana.
+\end{itemize}
+W kolejnych częściach pracy zaprezentowano wyniki symulacji, które pozwalają prześledzić zmiany temperatury oraz magnetyzacji, a także wskazać moment zaniku uporządkowania. 
+
+Przedstawiono wyniki : histogram energii demona wykorzystany do dopasowania liniowego, przebieg średniej magnetyzacji w kolejnych krokach Monte Carlo oraz zależność średniej magnetyzacji od temperatury.
+
+\section{Rozwinięcie}
+\subsection{Środowisko i konfiguracja programu}
+
+Implementację programu wykonano w środowisku \texttt{CLion 2024.3.4} (JetBrains).
+Kod źródłowy napisano w standardzie \texttt{C++17} i kompilowano przy użyciu kompilatora \texttt{gcc}.\\[0.2cm]
+Wykorzystano biblioteki:\\
+\texttt{<vector>}, \texttt{<map>}, \texttt{<random>}, \texttt{<cmath>}, \texttt{<fstream>}, \texttt{<iostream>}, \texttt{<string>} oraz \texttt{<algorithm>}. \\ [0.2cm]
+Wybór standardu \texttt{C++17} umożliwił wykorzystanie biblioteki \texttt{<filesystem>} do automatycznego tworzenia katalogów do zapisu danych.\\[0.2cm]
+Program został przystosowany do uruchamiania z poziomu terminala.\\[0.2cm]
+Dane wejściowe wczytywano z pliku \texttt{dane.txt}, który zawierał parametry symulacji: rozmiary siatki \((L_x, L_y)\), liczbę kroków Monte Carlo \(n_\text{steps}\), liczbę początkowych energii demona oraz zestaw ich wartości \(E_d\).\\[0.2cm]
+Podczas działania programu dane były zapisywane automatycznie:
+\begin{itemize}
+    \item co 200 kroków Monte Carlo zapisywano histogram energii demona i przebieg magnetyzacji do osobnych plików:
+    \begin{itemize}
+        \item \texttt{histogram/histogram\_E=...txt} – histogram energii demona zawierający wartości $E$, liczby wystąpień $N(E)$ oraz $\ln N(E)$, wykorzystywane do wyznaczania temperatury,
+        \item \texttt{magnetization/magnetization\_E=...txt} – chwilowa magnetyzacja $m(t)$ w~kolejnych krokach symulacji.
+    \end{itemize}
+    \item po zakończeniu symulacji dla każdej wartości energii demona wyniki zbiorcze (średnia magnetyzacja, nachylenie i obliczona temperatura) zapisywano do pliku:
+    \begin{itemize}
+        \item \texttt{mT.txt}.
+    \end{itemize}
+\end{itemize}
+Dzięki takiemu sposobowi zapisu możliwa była analiza przebiegu magnetyzacji w czasie, histogramu energii demona oraz zależności $\langle m \rangle (T)$ po zakończeniu całej serii symulacji.
+
+\subsection{Przetwarzanie danych symulacyjnych}
+Podczas symulacji monitorowano:
+\begin{itemize}
+    \item zmianę energii demona w czasie (transfery energii między demonem a układem),
+    \item zmiany magnetyzacji układu w kolejnych krokach Monte Carlo,
+    \item średnią magnetyzację $\langle m \rangle$ w funkcji temperatury $T$, wyznaczoną z rozkładu energii demona.
+\end{itemize}
+Średnią magnetyzację obliczano po fazie relaksacji, odrzucając pierwsze $20\%$ kroków jako niestabilne.
+\newpage
+\subsection{Wyniki}
+\FloatBarrier
+\subsubsection*{Siatka $37\times37$}
+\noindent
+\textbf{Parametry symulacji:}
+\begin{description}
+  \item[Liczba kroków Monte Carlo:] $n_\text{steps} = 10{,}000$
+  \item[Zakres energii demona:] $E_\text{D} = 56 \text{ -- } 1520$
+  \item[Krok energii demona:] $\Delta E_\text{D} = 8$
+\end{description}
+
+\vspace*{0.5cm}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{histogramLin.png}
+    \caption{Histogram w skali liniowej energii demona dla siatki $37\times37$ i $E_\text{D}=200$.}
+    \label{fig:hist_37Lin}
+\end{figure}
+\vspace*{0.5cm}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{HistogramLog.png}
+    \caption{Histogram w skali logarytmicznej energii demona dla siatki $37\times37$ i $E_\text{D}=200$.}
+    \label{fig:hist_37Log}
+\end{figure}
+\newpage
+\vspace*{0.5cm}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{magnetyzacjaALL.png}
+    \caption{Cały przebieg średniej magnetyzacji $m(t)$ w kolejnych krokach Monte Carlo  dla siatki $37\times37$ $E_\text{D}=200$. }
+    \label{fig:magnetizationall7}
+\end{figure}
+\vspace*{1cm}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{magnetization1000.png}
+    \caption{Fragment przebiegu średniej magnetyzacji $m(t)$ obejmujący 1000 kroków Monte Carlo $n_{\text{steps}}$ dla siatki $37\times37$ i $E_d = 200$.}
+    \label{fig:magnetization1000}
+\end{figure}
+\vspace*{1 cm}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{mT.png}
+    \caption{Zależność średniej magnetyzacji $\langle m \rangle$ od temperatury $T$ dla siatki $37\times37$.}
+    \label{fig:mT_37}
+\end{figure}
+
+\FloatBarrier
+\subsection{Komentarz do wyników}
+Na podstawie uzyskanych wyników przeanalizowano zachowanie układu spinów w funkcji temperatury oraz wpływ rozmiaru siatki na kształt przejścia fazowego.
+
+\paragraph{Histogram energii demona.\\}
+Rozkład energii demona ma postać wykładniczą, zgodną z równaniem~(\ref{eq:demon_distribution}). Dane dopasowano do funkcji~\cite{ABRC2001} 
+$N(E) = A e^{-aE}$,
+co potwierdza poprawność działania algorytmu. Współczynnik \(A\) pełni rolę czynnika normalizacyjnego, natomiast parametr \(a\) odpowiada nachyleniu w skali logarytmicznej. Na podstawie histogramu energii demona \(N(E_d)\) przeprowadzono dopasowanie liniowe~(\ref{eq:regression}) metodą najmniejszych kwadratów~\cite{ABRC2001}.  
+W tym celu obliczono sumy:
+\begin{equation}
+S_x=\sum_k x_k,\quad S_y=\sum_k y_k,\quad
+S_{xx}=\sum_k x_k^2,\quad S_{xy}=\sum_k x_k y_k,
+\label{eq:sums}
+\end{equation}
+gdzie \(x_k=E_k\), a \(y_k=\ln N(E_k)\).  
+Na ich podstawie wyznaczono współczynniki regresji liniowej:
+\begin{equation}
+a = \frac{n S_{xy} - S_x S_y}{n S_{xx} - S_x^2}, \qquad
+b = \frac{S_{xx} S_y - S_x S_{xy}}{n S_{xx} - S_x^2},
+\label{eq:linreg}
+\end{equation}
+gdzie \(n\) oznacza liczbę punktów histogramu.\\[0.2cm]
+Uzyskane współczynniki posłużyły następnie do wyznaczenia temperatury~(\ref{eq:temperature}). \\[0.2cm]
+Niewielkie odchylenia od wartości teoretycznych wynikają z ograniczonej liczby próbek oraz statystycznego charakteru metody Monte Carlo.
+\paragraph{Ewolucja magnetyzacji w czasie.\\}
+Po początkowym etapie relaksacji układ osiąga stan równowagi, w którym magnetyzacja oscyluje wokół stałej wartości.
+Niewielkie, chwilowe zmiany magnetyzacji wynikają z losowych zmian orientacji pojedynczych spinów, które pojawiają się w trakcie symulacji. Nie wpływają one jednak znacząco na ogólny stan uporządkowania układu.
+\paragraph{Zależność średniej magnetyzacji od temperatury.\\}
+Jednym z kluczowych wyników przeprowadzonej symulacji jest zależność średniej magnetyzacji \(\langle m\rangle\) od temperatury \(T\). Na wykresie~(\ref{fig:mT_37}) widać wyraźny spadek magnetyzacji wraz ze wzrostem temperatury oraz jej wahania w pobliżu temperatury krytycznej. Te wahania wynikają z losowego charakteru metody Monte Carlo: kolejne konfiguracje układu powstają na podstawie decyzji probabilistycznych, dlatego w obszarze przejścia fazowego obserwujemy dużą zmienność wyników. Punkty na wykresie układają się wtedy w charakterystyczną „mgłę” przy przejściu fazowym — oznacza to, że układ łatwo przechodzi między różnymi konfiguracjami spinów, a stany generowane przez algorytm stają się wzajemnie powiązane. \\\\\\
+Teoretyczna temperatura krytyczna dla modelu Isinga 2D wynosi $T_c^{\mathrm{teor}}=2.269\,\frac{J}{k_B}$. 
+Najbliższą tej wartości temperaturę uzyskano dla 
+\(T = 2.3237\,\frac{J}{k_B}\) (początkowa energia demona \(E_d = 1112\)); 
+w tym punkcie \(\langle m\rangle \approx 4.53\times10^{-2}\), 
+co odpowiada niewielkiej, dodatniej magnetyzacji bliskiej zeru.
+Względna różnica względem wartości teoretycznej wynosi
+\[
+\delta = \frac{|2.3237 - 2.269|}{2.269}\times 100\% \approx 2.4\%,
+\]
+co jest dość dobrym wynikiem jak na symulacje Monte Carlo przeprowadzone na ograniczonych małych rozmiarach siatki. 
+W małych układach przejście fazowe bywa „rozmyte” i może przesunąć się względem wartości teoretycznej, 
+stąd nieznaczne odchylenie jest spodziewane.\\[1.cm]
+
+
+\section{Zakończenie}
+Uzyskane wyniki wykazują oczekiwany przebieg charakterystyczny dla przejścia fazowego — wzrost temperatury prowadzi do stopniowego zaniku uporządkowania i gwałtownego spadku magnetyzacji w pobliżu temperatury krytycznej.\\[0.2cm]
+Wynik symulacyjny \(T_c^{\mathrm{sym}} \approx 2.3237\,\frac{J}{k_B}\) (dla \(E_d = 1112\)) jest bliski wartości teoretycznej \(T_c^{\mathrm{teor}} = 2.269\,\frac{J}{k_B}\), a różnica \(\delta \approx 2.4\%\) mieści się w akceptowalnym zakresie błędu. 
+Drobne odchylenia można przypisać ograniczonemu rozmiarowi siatki oraz losowemu charakterowi procesu Monte Carlo, który w pobliżu temperatury krytycznej prowadzi do wahań magnetyzacji i niewielkich przesunięć obserwowanej temperatury przejścia.
+
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+\end{document}
+
